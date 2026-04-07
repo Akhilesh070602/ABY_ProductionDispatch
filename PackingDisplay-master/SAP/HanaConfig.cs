@@ -67,7 +67,7 @@ namespace PackingDisplay.SAP
                 if (_cachedConfig == null)
                     throw new Exception("❌ No active SAP configuration found in DB");
 
-                Console.WriteLine("✅ SAP CONFIG LOADED FROM DB");
+                //Console.WriteLine("✅ SAP CONFIG LOADED FROM DB");
 
                 var config = new RfcConfigParameters
                 {

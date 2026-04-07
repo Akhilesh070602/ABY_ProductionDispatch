@@ -490,7 +490,7 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+/*    table-layout: fixed;*/
 }
 
 /* Force table to always take full width inside wrapper */

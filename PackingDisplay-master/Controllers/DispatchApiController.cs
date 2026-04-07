@@ -9,58 +9,72 @@ namespace PackingDisplay.Controllers
     public class DispatchApiController : ControllerBase
     {
         private readonly DispatchService _service;
+        private readonly LogService _logService;
 
-        public DispatchApiController(DispatchService service)
+        public DispatchApiController(DispatchService service, LogService logService)
         {
             _service = service;
+            _logService = logService;
         }
+
         [HttpGet("material-image")]
         public IActionResult GetMaterialImage(string material)
         {
-            var image = _service.GetMaterialImage(material);
-
-            return Ok(new
+            try
             {
-                image = image ?? ""
+                var image = _service.GetMaterialImage(material);
 
-            });
+                _logService.LogSuccess("", "GetMaterialImage", "DispatchService", $"Material={material}");
+
+                return Ok(new { image = image ?? "" });
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError(ex, "", "GetMaterialImage", "DispatchService", $"Material={material}");
+                return StatusCode(500, ex.Message);
+            }
         }
-        // 🔥 GET FROM SAP
+
         [HttpGet("po")]
         public IActionResult GetPO(string code)
         {
             try
             {
-                Console.WriteLine("API HIT: " + code);
-
                 var data = _service.GetDispatchData(code);
 
                 if (data == null)
+                {
+                    _logService.LogError(new Exception("No data found"), code, "GetPO", "DispatchService", $"PO={code}");
                     return NotFound();
+                }
+
+                _logService.LogSuccess(code, "GetPO", "DispatchService", $"PO={code}");
 
                 return Ok(data);
             }
             catch (Exception ex)
             {
+                _logService.LogError(ex, code, "GetPO", "DispatchService", $"PO={code}");
                 return StatusCode(500, ex.Message);
             }
         }
-        // for get image 
 
-        // 🔥 SAVE (optional DB)
         [HttpPost("save")]
         public IActionResult Save([FromBody] DispatchSaveDto model)
         {
             try
             {
                 _service.SaveActualWeight(model);
+
+                _logService.LogSuccess(model.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model.AUFNR}");
+
                 return Ok(new { success = true });
             }
             catch (Exception ex)
             {
+                _logService.LogError(ex, model?.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model?.AUFNR}");
                 return StatusCode(500, ex.Message);
             }
         }
-
     }
 }
