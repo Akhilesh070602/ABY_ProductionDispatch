@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Aditya Birla Group Production Dispatch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+            body {
+                font-family: Arial;
+                background-color: #e5e5e5;
+                margin: 0;
+            }
+
+            .main-container {
+                width: 95%;
+                max-width: 1200px;
+                margin: 20px auto;
+                border: 2px solid red;
+                padding: 15px;
+                background: #f7f7f7;
+                border-radius: 10px;
+            }
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+                color: red;
+            }
+
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .logo {
+                width: 60px;
+            }
+
+            .card {
+                background: #efefef;
+                padding: 15px;
+                margin-top: 20px;
+                border-radius: 10px;
+            }
+
+            .input-section {
+                display: flex;
+                gap: 10px;
+            }
+
+            input {
+                padding: 10px;
+                border: 1px solid red;
+                border-radius: 6px;
+                flex: 1;
+            }
+
+            button {
+                background: red;
+                color: white;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+
+            table {
+                width: 100%;
+                margin-top: 10px;
+                border-collapse: collapse;
+                border: 1px solid red;
+            }
+
+            th, td {
+                border: 1px solid #f1b5b5;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .bottom {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+            }
+
+            .weights {
+                display: flex;
+                gap: 10px;
+            }
+
+                .weights div {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+            .confirm-btn {
+                padding: 10px 25px;
+                border-radius: 20px;
+            }
+
+            /* 🔥 FULL SCREEN SCANNER */
+            #qrModal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: black;
+            }
+
+            .modal-content {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+
+            /* ❌ Close */
+            .close-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                font-size: 26px;
+                color: white;
+                z-index: 2;
+            }
+
+            /* 🔄 Flip */
+            .flip-icon {
+                position: absolute;
+                top: 20px;
+                right: 80px;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                background: white;
+                color: black;
+                font-size: 20px;
+                border: none;
+                z-index: 2;
+            }
+
+            /* 🔥 SCAN FRAME */
+            .scan-frame {
+                position: absolute;
+                top: 45%;
+                left: 50%;
+                transform: translate(-50%, -45%);
+                width: 95%;
+                max-width: 350px;
+                aspect-ratio: 1/1;
+                box-shadow: 0 0 0 1000px rgba(0,0,0,0.6);
+                border-radius: 10px;
+            }
+
+            #reader {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                border-radius: 10px;
+            }
+
+                #reader video {
+                    object-fit: cover;
+                }
+
+            /* 🔳 CORNERS */
+            .scan-frame::before,
+            .scan-frame::after,
+            .scan-frame span::before,
+            .scan-frame span::after {
+                content: "";
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                border: 4px solid white;
+            }
+
+            .scan-frame::before {
+                top: 0;
+                left: 0;
+                border-right: none;
+                border-bottom: none;
+            }
+
+            .scan-frame span::before {
+                top: 0;
+                right: 0;
+                border-left: none;
+                border-bottom: none;
+            }
+
+            .scan-frame span::after {
+                bottom: 0;
+                left: 0;
+                border-right: none;
+                border-top: none;
+            }
+
+            .scan-frame::after {
+                bottom: 0;
+                right: 0;
+                border-left: none;
+                border-top: none;
+            }
+
+            /* 🟥 STOP BUTTON */
+            .stop-btn {
+                position: absolute;
+                bottom: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: red;
+                padding: 12px 25px;
+                border-radius: 25px;
+            }
+
+            @@media (max-width: 768px) {
+                .input-section, .bottom, .weights {
+                    flex-direction: column;
+                }
+
+                button {
+                    width: 100%;
+                }
+
+                .confirm-btn {
+                    align-self: center;
+                }
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <div class="header">
+            <div class="header-left">
+                <img src="logo.png" class="logo">
+                <h3>Production Dispatch</h3>
+            </div>
+            <div>Plant 1</div>
+        </div>
+
+        <div class="card">
+
+            <h4>Enter Code</h4>
+
+            <div class="input-section">
+                <input type="text" id="inputCode" placeholder="Scan or Enter Code">
+                <button onclick="openScanner()">Scan</button>
+            </div>
+
+            <h4>PO Data</h4>
+            <table id="poTable">
+                <thead>
+                    <tr>
+                        <th>PO NO</th>
+                        <th>Material</th>
+                        <th>Date</th>
+                        <th>Cone</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <h4>Line Items</h4>
+            <table id="lineTable">
+                <thead>
+                    <tr>
+                        <th>List</th>
+                        <th>Name</th>
+                        <th>Weight</th>
+                        <th>Material</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="bottom">
+                <div class="weights">
+                    <div>
+                        <label>Standard Weight</label>
+                        <input type="text" id="stdWeight">
+                    </div>
+
+                    <div>
+                        <label>Actual Weight</label>
+                        <input type="text" id="actWeight">
+                    </div>
+                </div>
+
+                <button class="confirm-btn" onclick="confirmData()">Confirm</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 🔥 SCANNER -->
+    <div id="qrModal">
+        <div class="modal-content">
+
+            <span class="close-btn" onclick="cancelScanner()">✖</span>
+
+            <button class="flip-icon" onclick="switchCamera()">🔄</button>
+
+            <div class="scan-frame">
+                <span></span>
+                <div id="reader"></div>
+            </div>
+
+            <button class="stop-btn" onclick="stopScanner()">Stop</button>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>"\wwwroot\js\script.js"</script>
+
+</body>
+</html>
