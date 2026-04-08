@@ -66,13 +66,13 @@ namespace PackingDisplay.Controllers
             {
                 _service.SaveActualWeight(model);
 
-                _logService.LogSuccess(model.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model.AUFNR}");
+                _logService.LogSuccess(model.AUFNR ?? "", "SaveActualWeight", "DispatchService", $"PO={model.AUFNR}");
 
                 return Ok(new { success = true });
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, model.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model?.AUFNR}");
+                _logService.LogError(ex, model.AUFNR ?? "", "SaveActualWeight", "DispatchService", $"PO={model?.AUFNR}");
                 return StatusCode(500, ex.Message);
             }
         }

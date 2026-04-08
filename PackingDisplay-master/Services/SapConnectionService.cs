@@ -63,7 +63,7 @@ namespace PackingDisplay.Services
             _logService = logService;
         }
 
-        public SAPConnectionConfig GetActiveConfig()
+        public SAPConnectionConfig? GetActiveConfig()
         {
             try
             {
@@ -97,7 +97,7 @@ namespace PackingDisplay.Services
                     return config;
                 }
 
-                // ❌ NO LOG NEEDED HERE (normal case)
+                
                 return null;
             }
             catch (Exception ex)

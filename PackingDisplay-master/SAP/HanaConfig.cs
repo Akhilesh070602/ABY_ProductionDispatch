@@ -51,11 +51,11 @@ namespace PackingDisplay.SAP
             _sapService = sapService;
         }
 
-        public event RfcDestinationManager.ConfigurationChangeHandler ConfigurationChanged;
+        public event RfcDestinationManager.ConfigurationChangeHandler? ConfigurationChanged;
 
         public bool ChangeEventsSupported() => false;
 
-        public RfcConfigParameters GetParameters(string destinationName)
+        public RfcConfigParameters? GetParameters(string destinationName)
         {
             if (!string.Equals(destinationName, "DEP", StringComparison.OrdinalIgnoreCase))
                 return null;

@@ -231,7 +231,10 @@ namespace PackingDisplay.Services
                 IRfcTable table = func.GetTable("LT_TBL");
 
                 if (table.RowCount == 0)
-                    return null;
+                    return new DispatchDto
+                    {
+                        Items = new List<LineItemDto>()
+                    }; ;
 
                 DispatchDto dto = new DispatchDto
                 {
@@ -267,7 +270,10 @@ namespace PackingDisplay.Services
             catch (Exception ex)
             {
                 _logService.LogError(ex, code, "GetDispatchData", "DispatchService");
-                return null;
+                return new DispatchDto
+                {
+                    Items = new List<LineItemDto>()
+                }; ;
             }
         }
         // ✅ GET IMAGE FROM DB
@@ -288,7 +294,7 @@ namespace PackingDisplay.Services
 
                 _logService.LogSuccess(matnr, "GetMaterialImage", "DispatchService");
 
-                return result?.ToString();
+                return result.ToString() ?? "";
             }
             catch (Exception ex)
             {
@@ -300,7 +306,7 @@ namespace PackingDisplay.Services
         {
             try
             {
-                decimal noOfCone = Convert.ToDecimal(model.ZCONE_NO ?? "0");
+                decimal noOfCone = Convert.ToDecimal(model.ZCONE_NO ?? "");
                 decimal coneWeight = Convert.ToDecimal(model.ZCONE_WT);
                 decimal actualWeight = Convert.ToDecimal(model.ACT_WEIGHT);
 
@@ -321,15 +327,15 @@ namespace PackingDisplay.Services
                 func.SetValue("IV_AUFNR", model.AUFNR ?? "");
 
                 // ✅ Only important log
-                _logService.LogInfo("Calling SAP ZRFC_HU_DATA_POST", model.AUFNR, "SaveActualWeight", "DispatchService");
+                _logService.LogInfo("Calling SAP ZRFC_HU_DATA_POST", model.AUFNR ?? "", "SaveActualWeight", "DispatchService");
 
                 func.Invoke(dest);
 
-                _logService.LogSuccess(model.AUFNR, "SaveActualWeight", "DispatchService");
+                _logService.LogSuccess(model.AUFNR ?? "", "SaveActualWeight", "DispatchService");
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, model?.AUFNR, "SaveActualWeight", "DispatchService");
+                _logService.LogError(ex, model.AUFNR ?? "", "SaveActualWeight", "DispatchService");
                 throw;
             }
         }

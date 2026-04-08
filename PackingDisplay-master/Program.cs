@@ -52,8 +52,7 @@ builder.Services.AddSingleton<HanaConfig>();
 builder.Services.AddScoped<DispatchService>();
 builder.Services.AddScoped<ScannedNoService>();
 builder.Services.AddSingleton<LogService>();
-builder.Services.AddTransient<WeighmentService>(); // 
-//builder.Services.AddScoped<DashboardService>();
+builder.Services.AddTransient<WeighmentService>(); 
 
 var app = builder.Build();
 
