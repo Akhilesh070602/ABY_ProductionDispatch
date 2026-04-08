@@ -7,7 +7,7 @@ namespace PackingDisplay.Services
 {
     public class DashboardService
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IMemoryCache _cache;
         private readonly ILogger<DashboardService> _logger;
         private readonly DbHelper _db;

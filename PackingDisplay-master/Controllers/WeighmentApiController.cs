@@ -49,7 +49,11 @@ namespace PackingDisplay.Controllers
         {
             try
             {
+                // ✅ API HIT
+                _logService.LogInfo("API HIT - GetWeight", "", "GetWeight", "WeighmentController");
+
                 var result = _service.ReadWeight();
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -57,8 +61,8 @@ namespace PackingDisplay.Controllers
                 _logService.LogError(
                     ex,
                     "",
-                    "GetWeight API",
-                    "WeighmentService",
+                    "GetWeight",
+                    "WeighmentController",
                     "Weight fetch request"
                 );
 

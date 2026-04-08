@@ -44,7 +44,7 @@ namespace PackingDisplay.SAP
     public class HanaConfig : IDestinationConfiguration
     {
         private readonly SapConnectionService _sapService;
-        private SAPConnectionConfig _cachedConfig;
+        private SAPConnectionConfig? _cachedConfig;
 
         public HanaConfig(SapConnectionService sapService)
         {

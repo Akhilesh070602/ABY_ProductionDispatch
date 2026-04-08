@@ -4,7 +4,7 @@ namespace PackingDisplay.Data
 {
     public class DbHelper
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
 
         public DbHelper(IConfiguration config)
         {

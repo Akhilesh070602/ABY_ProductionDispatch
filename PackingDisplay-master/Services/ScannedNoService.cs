@@ -14,29 +14,26 @@ namespace PackingDisplay.Services
             _logService = logService;
         }
 
-        // ✅ Increment Scan Count
+        // ✅ Increment Scan
         public bool IncrementScan()
         {
-            string apiName = "IncrementScanCount";
-            string serviceName = "ScannedNoService";
-
             try
             {
                 using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
                 using SqlCommand cmd = new SqlCommand("sp_IncrementScanCount", con);
+
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 con.Open();
+                cmd.ExecuteNonQuery();
 
-                int rows = cmd.ExecuteNonQuery();  // ✅ ONLY this
-
-                _logService.LogSuccess("", apiName, serviceName, $"RowsAffected={rows}");
+                _logService.LogSuccess("", "IncrementScan", "ScannedNoService");
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, "", apiName, serviceName);
+                _logService.LogError(ex, "", "IncrementScan", "ScannedNoService");
                 return false;
             }
         }
@@ -44,34 +41,30 @@ namespace PackingDisplay.Services
         // ✅ Get Scan Count
         public int GetScanCount()
         {
-            string apiName = "GetScanCount";
-            string serviceName = "ScannedNoService";
-
             try
             {
-                int count = 0;
-
                 using SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
                 using SqlCommand cmd = new SqlCommand("sp_GetScanCount", con);
+
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 con.Open();
 
-                var result = cmd.ExecuteScalar();  // ✅ ONLY this
+                var result = cmd.ExecuteScalar();
+                int count = result != null ? Convert.ToInt32(result) : 0;
 
-                if (result != null)
-                    count = Convert.ToInt32(result);
-
-                _logService.LogSuccess("", apiName, serviceName, $"Count={count}");
+                _logService.LogSuccess("", "GetScanCount", "ScannedNoService");
 
                 return count;
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, "", apiName, serviceName);
+                _logService.LogError(ex, "", "GetScanCount", "ScannedNoService");
                 return 0;
             }
         }
+
+        // ✅ Increment Confirm
         public bool IncrementConfirm()
         {
             try
@@ -84,15 +77,18 @@ namespace PackingDisplay.Services
                 con.Open();
                 cmd.ExecuteNonQuery();
 
+                _logService.LogSuccess("", "IncrementConfirm", "ScannedNoService");
+
                 return true;
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, "", "IncrementConfirm", "ConfirmService");
+                _logService.LogError(ex, "", "IncrementConfirm", "ScannedNoService");
                 return false;
             }
         }
 
+        // ✅ Get Confirm Count
         public int GetConfirmCount()
         {
             try
@@ -105,11 +101,15 @@ namespace PackingDisplay.Services
                 con.Open();
 
                 var result = cmd.ExecuteScalar();
-                return result != null ? Convert.ToInt32(result) : 0;
+                int count = result != null ? Convert.ToInt32(result) : 0;
+
+                _logService.LogSuccess("", "GetConfirmCount", "ScannedNoService");
+
+                return count;
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, "", "GetConfirmCount", "ConfirmService");
+                _logService.LogError(ex, "", "GetConfirmCount", "ScannedNoService");
                 return 0;
             }
         }

@@ -39,10 +39,7 @@
 //    }
 
 //}
-using System;
 using System.IO.Ports;
-//using System.Linq;
-//using System.Threading;
 
 namespace PackingDisplay.Services
 {
@@ -66,15 +63,12 @@ namespace PackingDisplay.Services
 
                 string portName = ports.First();
 
-                Console.WriteLine("Using Port: " + portName);
-
                 using (SerialPort port = new SerialPort(portName, 9600))
                 {
                     port.Parity = Parity.None;
                     port.DataBits = 8;
                     port.StopBits = StopBits.One;
                     port.Handshake = Handshake.None;
-
                     port.ReadTimeout = 2000;
 
                     port.Open();
@@ -86,12 +80,8 @@ namespace PackingDisplay.Services
                     if (string.IsNullOrWhiteSpace(data))
                         throw new Exception("No data from device");
 
-                    _logService.LogSuccess(
-                        "",
-                        "ReadWeight",
-                        "WeighmentService",
-                        $"Port={portName}"
-                    );
+                    // ✅ ONLY SUCCESS LOG
+                    _logService.LogSuccess("", "ReadWeight", "WeighmentService");
 
                     return data.Trim();
                 }

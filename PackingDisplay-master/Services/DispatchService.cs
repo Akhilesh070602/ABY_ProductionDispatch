@@ -217,29 +217,27 @@ namespace PackingDisplay.Services
         {
             try
             {
-                _logService.LogInfo("START - Fetch Dispatch Data", code, "GetDispatchData", "DispatchService");
-
                 var dest = RfcDestinationManager.GetDestination("DEP");
                 var repo = dest.Repository;
-
-                _logService.LogInfo("SAP Destination Connected", code, "GetDispatchData", "DispatchService");
 
                 IRfcFunction func = repo.CreateFunction("ZRFC_HU_DET");
                 func.SetValue("IV_AUFNR", code);
 
-                _logService.LogInfo("Calling SAP Function ZRFC_HU_DET", code, "GetDispatchData", "DispatchService");
+                // ✅ Only important log
+                _logService.LogInfo("Calling SAP ZRFC_HU_DET", code, "GetDispatchData", "DispatchService");
 
                 func.Invoke(dest);
 
                 IRfcTable table = func.GetTable("LT_TBL");
 
                 if (table.RowCount == 0)
-                {
-                    _logService.LogInfo("No Data Found in SAP", code, "GetDispatchData", "DispatchService");
                     return null;
-                }
 
-                DispatchDto dto = new DispatchDto();
+                DispatchDto dto = new DispatchDto
+                {
+                    Items = new List<LineItemDto>() // ✅ FIX
+                };
+
                 var firstRow = table[0];
 
                 dto.PoNo = firstRow.GetString("AUFNR");
@@ -254,7 +252,7 @@ namespace PackingDisplay.Services
 
                 foreach (IRfcStructure row in table)
                 {
-                    dto.Items?.Add(new LineItemDto
+                    dto.Items.Add(new LineItemDto
                     {
                         Name = row.GetString("KDMAT"),
                         ConeWeight = row.GetDecimal("ZCONE_WT"),
@@ -268,56 +266,40 @@ namespace PackingDisplay.Services
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, code, "GetDispatchData", "DispatchService", $"PO={code}");
+                _logService.LogError(ex, code, "GetDispatchData", "DispatchService");
                 return null;
             }
         }
-
         // ✅ GET IMAGE FROM DB
         public string GetMaterialImage(string matnr)
         {
             try
             {
-                _logService.LogInfo("START - Get Material Image", matnr, "GetMaterialImage", "DispatchService");
+                using SqlConnection con = new SqlConnection(
+                    _configuration.GetConnectionString("DefaultConnection"));
 
-                using (SqlConnection con = new SqlConnection(
-                    _configuration.GetConnectionString("DefaultConnection")))
-                {
-                    con.Open();
+                con.Open();
 
-                    SqlCommand cmd = new SqlCommand("sp_GetMaterialImage", con);
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("sp_GetMaterialImage", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Material", matnr);
 
-                    cmd.Parameters.AddWithValue("@Material", matnr);
+                var result = cmd.ExecuteScalar();
 
-                    var result = cmd.ExecuteScalar();
+                _logService.LogSuccess(matnr, "GetMaterialImage", "DispatchService");
 
-                    _logService.LogSuccess(matnr, "GetMaterialImage", "DispatchService");
-
-                    return result?.ToString();
-                }
+                return result?.ToString();
             }
             catch (Exception ex)
             {
-                _logService.LogError(
-                    ex,
-                    matnr,
-                    "GetMaterialImage",
-                    "DispatchService",
-                    $"Material={matnr}"
-                );
-
+                _logService.LogError(ex, matnr, "GetMaterialImage", "DispatchService");
                 return "";
             }
         }
-
-        // ✅ SEND DATA TO SAP
         public void SaveActualWeight(DispatchSaveDto model)
         {
             try
             {
-                _logService.LogInfo("START - Save Actual Weight", model.AUFNR, "SaveActualWeight", "DispatchService");
-
                 decimal noOfCone = Convert.ToDecimal(model.ZCONE_NO ?? "0");
                 decimal coneWeight = Convert.ToDecimal(model.ZCONE_WT);
                 decimal actualWeight = Convert.ToDecimal(model.ACT_WEIGHT);
@@ -328,18 +310,8 @@ namespace PackingDisplay.Services
                 decimal minWeight = stdWeight - tolerance;
                 decimal maxWeight = stdWeight + tolerance;
 
-                _logService.LogInfo(
-                    $"Validation Range: {minWeight} - {maxWeight}",
-                    model.AUFNR,
-                    "SaveActualWeight",
-                    "DispatchService"
-                );
-
-                if (actualWeight < minWeight)
-                    throw new Exception($"UNDER WEIGHT (Min: {minWeight})");
-
-                if (actualWeight > maxWeight)
-                    throw new Exception($"OVER WEIGHT (Max: {maxWeight})");
+                if (actualWeight < minWeight || actualWeight > maxWeight)
+                    throw new Exception("Weight out of tolerance");
 
                 var dest = RfcDestinationManager.GetDestination("DEP");
                 var repo = dest.Repository;
@@ -347,26 +319,9 @@ namespace PackingDisplay.Services
                 IRfcFunction func = repo.CreateFunction("ZRFC_HU_DATA_POST");
 
                 func.SetValue("IV_AUFNR", model.AUFNR ?? "");
-                func.SetValue("IV_VENUM", model.VENUM ?? "");
-                func.SetValue("IV_EXIDV", model.EXIDV ?? "");
-                func.SetValue("IV_SONUM", model.SONUM ?? "");
-                func.SetValue("IV_MATNR", model.MATNR ?? "");
-                func.SetValue("IV_WERKS", model.WERKS ?? "");
-                func.SetValue("IV_KDMAT", model.KDMAT ?? "");
-                func.SetValue("IV_VEMEH", model.VEMEH ?? "");
 
-                func.SetValue("IV_STD_WEIGHT", Convert.ToDecimal(model.STD_WEIGHT));
-                func.SetValue("IV_ZCONE_WT", Convert.ToDecimal(model.ZCONE_WT));
-                func.SetValue("IV_ACT_WEIGHT", Convert.ToDecimal(model.ACT_WEIGHT));
-
-                func.SetValue("IV_ZCONE_NO", model.ZCONE_NO ?? "");
-
-                _logService.LogInfo(
-                    "Calling SAP Function ZRFC_HU_DATA_POST",
-                    model.AUFNR,
-                    "SaveActualWeight",
-                    "DispatchService"
-                );
+                // ✅ Only important log
+                _logService.LogInfo("Calling SAP ZRFC_HU_DATA_POST", model.AUFNR, "SaveActualWeight", "DispatchService");
 
                 func.Invoke(dest);
 
@@ -374,16 +329,10 @@ namespace PackingDisplay.Services
             }
             catch (Exception ex)
             {
-                _logService.LogError(
-                    ex,
-                    model?.AUFNR,
-                    "SaveActualWeight",
-                    "DispatchService",
-                    $"PO={model?.AUFNR}"
-                );
-
+                _logService.LogError(ex, model?.AUFNR, "SaveActualWeight", "DispatchService");
                 throw;
             }
         }
+
     }
 }

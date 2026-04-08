@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 using PackingDisplay.Models;
 //using System;
 //using System.Collections.Generic;
-//using System.Data
+//using System.Data;
 
 namespace PackingDisplay.Controllers
 {
@@ -12,7 +12,7 @@ namespace PackingDisplay.Controllers
     [Route("api/[controller]")]
     public class LogController : ControllerBase
     {
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
 
         public LogController(IConfiguration config)
         {

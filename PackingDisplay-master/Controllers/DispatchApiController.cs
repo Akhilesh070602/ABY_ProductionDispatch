@@ -72,7 +72,7 @@ namespace PackingDisplay.Controllers
             }
             catch (Exception ex)
             {
-                _logService.LogError(ex, model?.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model?.AUFNR}");
+                _logService.LogError(ex, model.AUFNR, "SaveActualWeight", "DispatchService", $"PO={model?.AUFNR}");
                 return StatusCode(500, ex.Message);
             }
         }
